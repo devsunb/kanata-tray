@@ -112,6 +112,7 @@ func (t *SystrayApp) runPreset(presetIndex int, runner *runner_pkg.Runner) {
 		t.presets[presetIndex].Preset.TcpPort,
 		t.presets[presetIndex].Preset.Hooks,
 		t.presets[presetIndex].Preset.ExtraArgs,
+		t.presets[presetIndex].Preset.Sudo,
 	)
 	if err != nil {
 		log.Errorf("runner.Run failed with: %v", err)

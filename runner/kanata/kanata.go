@@ -41,7 +41,7 @@ func NewKanataInstance() *Kanata {
 	}
 }
 
-func (r *Kanata) RunNonblocking(ctx context.Context, kanataExecutable string, kanataConfig string, tcpPort int, hooks config.Hooks, extraArgs []string) error {
+func (r *Kanata) RunNonblocking(ctx context.Context, kanataExecutable string, kanataConfig string, tcpPort int, hooks config.Hooks, extraArgs []string, sudo bool) error {
 	if kanataExecutable == "" {
 		var err error
 		kanataExecutable, err = exec.LookPath("kanata")
@@ -56,7 +56,13 @@ func (r *Kanata) RunNonblocking(ctx context.Context, kanataExecutable string, ka
 	}
 
 	args := append([]string{cfgArg, "--port", fmt.Sprint(tcpPort)}, extraArgs...)
-	cmd := cmd(ctx, kanataExecutable, args...)
+	var c *exec.Cmd
+	if sudo {
+		args = append([]string{kanataExecutable}, args...)
+		c = cmd(ctx, "sudo", args...)
+	} else {
+		c = cmd(ctx, kanataExecutable, args...)
+	}
 
 	go func() {
 		selfCtx, selfCancel := context.WithCancelCause(ctx)
@@ -79,7 +85,7 @@ func (r *Kanata) RunNonblocking(ctx context.Context, kanataExecutable string, ka
 			return
 		}
 
-		r.cmd = cmd
+		r.cmd = c
 		r.cmd.Stdout = r.logFile
 		r.cmd.Stderr = r.logFile
 

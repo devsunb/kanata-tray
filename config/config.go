@@ -49,6 +49,7 @@ type Preset struct {
 	LayerIcons       map[string]string
 	Hooks            Hooks
 	ExtraArgs        []string
+	Sudo             bool
 }
 
 func (m *Preset) GoString() string {
@@ -85,6 +86,7 @@ type preset struct {
 	LayerIcons       map[string]string `toml:"layer_icons"`
 	Hooks            *hooks            `toml:"hooks"`
 	ExtraArgs        extraArgs         `toml:"extra_args"`
+	Sudo             *bool             `toml:"sudo"`
 }
 
 func (p *preset) applyDefaults(defaults *preset) {
@@ -110,6 +112,9 @@ func (p *preset) applyDefaults(defaults *preset) {
 	}
 	if p.ExtraArgs == nil {
 		p.ExtraArgs = defaults.ExtraArgs
+	}
+	if p.Sudo == nil {
+		p.Sudo = defaults.Sudo
 	}
 }
 
@@ -143,6 +148,9 @@ func (p *preset) intoExported() (*Preset, error) {
 			return nil, err
 		}
 		result.ExtraArgs = x
+	}
+	if p.Sudo != nil {
+		result.Sudo = *p.Sudo
 	}
 	return result, nil
 }
